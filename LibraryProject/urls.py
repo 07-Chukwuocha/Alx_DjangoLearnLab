@@ -2,7 +2,11 @@
 URL configuration for LibraryProject project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
+<<<<<<< HEAD
     https://docs.djangoproject.com/en/4.2/topics/http/urls/
+=======
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
+>>>>>>> 34a3e086be94d6af8b63d1188e99bca64954a0ae
 Examples:
 Function views
     1. Add an import:  from my_app import views

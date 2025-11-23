@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-
 # ----------------------------
 # Author, Book, Library Models
 # ----------------------------
@@ -21,6 +20,13 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        permissions = [
+            ("can_add_book", "Can add book"),
+            ("can_change_book", "Can change book"),
+            ("can_delete_book", "Can delete book"),
+        ]
 
 
 class Library(models.Model):
@@ -40,7 +46,7 @@ class Librarian(models.Model):
 
 
 # ----------------------------
-# UserProfile (Role-Based Access Control)
+# UserProfile for Role-Based Access
 # ----------------------------
 
 class UserProfile(models.Model):
@@ -57,7 +63,6 @@ class UserProfile(models.Model):
         return f"{self.user.username} - {self.role}"
 
 
-# Auto-create UserProfile when a new User is created
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

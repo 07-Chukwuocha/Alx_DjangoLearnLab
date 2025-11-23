@@ -2,15 +2,18 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # Function-based view: list all books
+    # Book + Library Views
     path('books/', views.list_books, name='list_books'),
-
-    # Class-based view: library detail
     path('library/<int:pk>/', views.LibraryDetailView.as_view(), name='library_detail'),
 
     # Authentication URLs
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
-    path('register/', views.register_view, name='register'),
+    path('login/', views.CustomLoginView.as_view(), name='login'),
+    path('logout/', views.CustomLogoutView.as_view(), name='logout'),
+    path('register/', views.RegisterView.as_view(), name='register'),
+
+    # Role-Based URLs
+    path('admin-role/', views.admin_view, name='admin_view'),
+    path('librarian-role/', views.librarian_view, name='librarian_view'),
+    path('member-role/', views.member_view, name='member_view'),
 ]
 

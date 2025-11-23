@@ -1,62 +1,72 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.generic import DetailView
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import reverse_lazy
 from .models import Book, Library
 
-# Django auth imports
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import login, logout
 
+# ----------------------------
+# Book + Library Views
+# ----------------------------
 
-# ============================
-# Existing Views (KEEP THESE)
-# ============================
-
-# Function-based view
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
 
-# Class-based view
+
 class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
 
 
-# ============================
-# Authentication Views (ADD THESE)
-# ============================
+# ----------------------------
+# Authentication Views
+# ----------------------------
 
-# Login view
-def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('list_books')
-    else:
-        form = AuthenticationForm()
-
-    return render(request, 'relationship_app/login.html', {'form': form})
+class CustomLoginView(LoginView):
+    template_name = 'relationship_app/login.html'
 
 
-# Logout view
-def logout_view(request):
-    logout(request)
-    return render(request, 'relationship_app/logout.html')
+class CustomLogoutView(LogoutView):
+    template_name = 'relationship_app/logout.html'
 
 
-# Registration view
-def register_view(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)   # Auto-login after registration
-            return redirect('list_books')
-    else:
-        form = UserCreationForm()
+class RegisterView(LoginView):
+    form_class = UserCreationForm
+    template_name = 'relationship_app/register.html'
+    success_url = reverse_lazy('login')
 
-    return render(request, 'relationship_app/register.html', {'form': form})
+
+# ----------------------------
+# Role-Based Access Views
+# ----------------------------
+
+def is_admin(user):
+    return user.is_authenticated and user.userprofile.role == "Admin"
+
+
+def is_librarian(user):
+    return user.is_authenticated and user.userprofile.role == "Librarian"
+
+
+def is_member(user):
+    return user.is_authenticated and user.userprofile.role == "Member"
+
+
+@user_passes_test(is_admin)
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html')
+
+
+@user_passes_test(is_librarian)
+def librarian_view(request):
+    return render(request, 'relationship_app/librarian_view.html')
+
+
+@user_passes_test(is_member)
+def member_view(request):
+    return render(request, 'relationship_app/member_view.html')
 

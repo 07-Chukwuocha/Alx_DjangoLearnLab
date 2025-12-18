@@ -23,7 +23,7 @@ class BookListView(generics.ListAPIView):
     # 🔥 Required backends
     filter_backends = [
         DjangoFilterBackend,
-        SearchFilter,
+        filters.SearchFilter,
         filters.OrderingFilter, 
     ]
 

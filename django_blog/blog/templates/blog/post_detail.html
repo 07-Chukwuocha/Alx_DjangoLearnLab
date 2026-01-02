@@ -8,5 +8,23 @@
     <a href="{% url 'post-update' post.pk %}">Edit</a>
     <a href="{% url 'post-delete' post.pk %}">Delete</a>
 {% endif %}
+
+<hr>
+<h3>Comments</h3>
+
+{% for comment in post.comments.all %}
+    <p>{{ comment.author }}: {{ comment.content }}</p>
+    {% if user == comment.author %}
+        <a href="{% url 'comment-update' comment.pk %}">Edit</a>
+        <a href="{% url 'comment-delete' comment.pk %}">Delete</a>
+    {% endif %}
+{% empty %}
+    <p>No comments yet.</p>
+{% endfor %}
+
+{% if user.is_authenticated %}
+    <a href="{% url 'comment-create' post.pk %}">Add a Comment</a>
+{% endif %}
+
 {% endblock %}
 

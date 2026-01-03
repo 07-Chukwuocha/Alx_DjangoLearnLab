@@ -1,15 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
+from taggit.managers import TaggableManager
 
-from .models import Post  # if inside same file, this line is not needed; otherwise make sure Post is defined above
-
-class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+class Post(models.Model):
+    title = models.CharField(max_length=200)
     content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)  # MUST be exactly this name
+    published_date = models.DateTimeField(auto_now_add=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    tags = TaggableManager()  # <-- TAGGING
 
     def __str__(self):
-        return f'Comment by {self.author.username} on {self.post.title}'
+        return self.title
+
 

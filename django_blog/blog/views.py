@@ -3,6 +3,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required  # checker wants this import
 from django.urls import reverse_lazy
+from django.db.models import Q
 
 from .models import Post, Comment
 from .forms import CommentForm
@@ -24,6 +25,17 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
+    
+    def search_posts(request):
+    query = request.GET.get('q', '')
+
+    posts = Post.objects.filter(
+        Q(title__icontains=query) |
+        Q(content__icontains=query) |
+        Q(tags__name__icontains=query)
+    ).distinct()
+
+    return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
 
 
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

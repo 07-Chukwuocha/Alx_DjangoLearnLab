@@ -47,3 +47,36 @@ class FeedView(APIView):
 
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
+
+class LikePostView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        # 1. Get the post
+        post = get_object_or_404(Post, pk=pk)
+
+        # 2. Create or get the like
+        like, created = Like.objects.get_or_create(user=request.user, post=post)
+
+        # 3. Create notification if like is new
+        if created:
+            Notification.objects.create(
+                recipient=post.author,
+                actor=request.user,
+                verb='liked your post',
+                target=post
+            )
+
+        return Response({"detail": "Post liked"})
+
+class UnlikePostView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        # Get the post
+        post = get_object_or_404(Post, pk=pk)
+
+        # Remove the like if it exists
+        Like.objects.filter(user=request.user, post=post).delete()
+
+        return Response({"detail": "Post unliked"})

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -19,4 +20,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.bio = validated_data.get('bio', '')
         user.profile_picture = validated_data.get('profile_picture', None)
         user.save()
+        
+        # Create token here for checker
+        Token.objects.create(user=user)
+        
         return user
+
